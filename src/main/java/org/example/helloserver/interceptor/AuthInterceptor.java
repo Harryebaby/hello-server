@@ -10,6 +10,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("Authorization");
         if (token == null || token.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json; charset=UTF-8");
             String errorJson = String.format(
                     "{\"code\": %d, \"msg\":\"%s\"}",
