@@ -3,14 +3,16 @@ package org.example.helloserver.controller;
 import org.example.helloserver.common.Result;
 import org.example.helloserver.dto.UserDTO;
 import org.example.helloserver.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public Result<String> register(@RequestBody UserDTO userDTO) {
@@ -24,6 +26,6 @@ public class UserController {
 
     @GetMapping("/{id}")
     public Result<String> getUser(@PathVariable("id") Long id) {
-        return Result.success("查询成功,正在返回 ID 为 " + id + " 的用户信息");
+        return userService.getUserById(id);
     }
 }
