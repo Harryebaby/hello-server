@@ -1,6 +1,7 @@
 package org.example.helloserver.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.helloserver.common.Result;
 import org.example.helloserver.common.ResultCode;
 import org.example.helloserver.dto.UserDTO;
@@ -58,5 +59,12 @@ public class UserServiceImpl implements UserService {
             return Result.error(ResultCode.USER_NOT_EXIST);
         }
         return Result.success("查询成功：id=" + dbUser.getId() + ", username=" + dbUser.getUsername());
+    }
+
+    @Override
+    public Result<Object> getUserPage(Integer pageNum, Integer pageSize) {
+        Page<User> pageParam = new Page<>(pageNum, pageSize);
+        Page<User> resultPage = userMapper.selectPage(pageParam, null);
+        return Result.success(resultPage);
     }
 }

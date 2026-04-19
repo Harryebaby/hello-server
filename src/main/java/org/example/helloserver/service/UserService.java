@@ -9,4 +9,6 @@ public interface UserService {
     Result<String> login(UserDTO userDTO);
 
     Result<String> getUserById(Long id);
+
+    Result<Object> getUserPage(Integer pageNum, Integer pageSize);
 }
