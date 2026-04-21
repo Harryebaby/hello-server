@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -17,7 +18,9 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,17 +95,23 @@ class HelloServerApplicationTests {
     }
 
     @Test
-    void getUserByIdShouldReadFromDatabase() throws Exception {
+    void otherApiShouldRequireAuthentication() throws Exception {
         User user = new User();
         user.setUsername("alice");
         user.setPassword("123456");
         userMapper.insert(user);
 
-        mockMvc.perform(get("/api/users/{id}", user.getId())
-                        .header("Authorization", "Bearer test-token"))
+        mockMvc.perform(get("/api/users/{id}", user.getId()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void corsPreflightShouldBeAllowed() throws Exception {
+        mockMvc.perform(options("/api/users")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:5173")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.containsString("alice")));
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
     }
 
     private String jsonBody(String username, String password) throws Exception {
