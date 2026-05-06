@@ -79,7 +79,7 @@ class HelloServerApplicationTests {
                         .content(jsonBody("alice", "123456")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.startsWith("Bearer ")));
+                .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.startsWith("eyJ")));
     }
 
     @Test
@@ -103,6 +103,28 @@ class HelloServerApplicationTests {
 
         mockMvc.perform(get("/api/users/{id}", user.getId()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void protectedApiShouldAllowValidJwt() throws Exception {
+        User user = new User();
+        user.setUsername("alice");
+        user.setPassword("123456");
+        userMapper.insert(user);
+
+        String response = mockMvc.perform(post("/api/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody("alice", "123456")))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String token = objectMapper.readTree(response).get("data").asText();
+
+        mockMvc.perform(get("/api/users/{id}", user.getId())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
     }
 
     @Test

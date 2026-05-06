@@ -11,13 +11,13 @@ import org.example.helloserver.entity.User;
 import org.example.helloserver.entity.UserInfo;
 import org.example.helloserver.mapper.UserInfoMapper;
 import org.example.helloserver.mapper.UserMapper;
+import org.example.helloserver.security.JwtUtil;
 import org.example.helloserver.service.UserService;
 import org.example.helloserver.vo.UserDetailVO;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -28,12 +28,14 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserInfoMapper userInfoMapper;
     private final StringRedisTemplate redisTemplate;
+    private final JwtUtil jwtUtil;
 
     public UserServiceImpl(UserMapper userMapper, UserInfoMapper userInfoMapper,
-                           StringRedisTemplate redisTemplate) {
+                           StringRedisTemplate redisTemplate, JwtUtil jwtUtil) {
         this.userMapper = userMapper;
         this.userInfoMapper = userInfoMapper;
         this.redisTemplate = redisTemplate;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -65,7 +67,7 @@ public class UserServiceImpl implements UserService {
             return Result.error(ResultCode.PASSWORD_ERROR);
         }
 
-        return Result.success("Bearer " + UUID.randomUUID());
+        return Result.success(jwtUtil.generateToken(dbUser.getUsername()));
     }
 
     @Override
