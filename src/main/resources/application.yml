@@ -19,3 +19,9 @@ security:
   jwt:
     secret: demo-jwt-secret-key-for-spring-security-2026
     expiration-millis: 7200000
+
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY:}
+  base-url: https://api.deepseek.com
+  model: deepseek-v4-flash
+  temperature: 0.7
