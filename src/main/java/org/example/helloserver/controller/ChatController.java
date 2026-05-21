@@ -23,12 +23,8 @@ public class ChatController {
 
     @PostMapping
     public Result<ChatResponseVO> chat(@RequestBody ChatRequestDTO requestDTO) {
-        if (requestDTO == null
-                || !StringUtils.hasText(requestDTO.getSessionId())
-                || !StringUtils.hasText(requestDTO.getMessage())) {
             return Result.error(ResultCode.ERROR);
         }
 
-        return Result.success(chatService.chat(requestDTO));
     }
 }
